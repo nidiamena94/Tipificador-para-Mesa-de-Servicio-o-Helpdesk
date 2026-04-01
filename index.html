@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tipificador para Mesa de Servicio o Helpdesk</title>
+    <style>
+        :root {
+            --primary: #293133; /* Estilo */
+            --accent: #0070ad;  /* Azul */
+            --light: #f4f7f6;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--light); padding: 20px; color: var(--primary); }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        select, input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        textarea { resize: vertical; background: #f9f9f9; font-family: monospace; }
+        .btn { background: var(--accent); color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; transition: 0.3s; }
+        .btn:hover { background: #005a8c; }
+        .success-msg { color: #28a745; font-weight: bold; display: none; text-align: center; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Generador de Plantillas</h2>
+    
+    <div class="form-group">
+        <label>1. Selecciona el Tipo de Incidente:</label>
+        <select id="incidenteSelect" onchange="actualizarPlantilla()">
+            <option value="">-- Seleccione una opción --</option>
+            <option value="password">Reseteo de Contraseña</option>
+            <option value="vpn">Falla Conexión VPN</option>
+            <option value="impresora">Soporte Impresora (Sitio)</option>
+            <option value="software">Instalación de Software</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>2. Datos del Ticket (Opcional):</label>
+        <input type="text" id="ticketUser" placeholder="Nombre del usuario" oninput="actualizarPlantilla()">
+    </div>
+
+    <div class="form-group">
+        <label>3. Plantilla Generada:</label>
+        <textarea id="plantillaOutput" rows="12" readonly></textarea>
+    </div>
+
+    <button class="btn" onclick="copiarAlPortapapeles()"> Copiar </button>
+    <div id="mensajeCopiado" class="success-msg">¡Copiado al portapapeles correctamente!</div>
+</div>
+
+<script>
+    // PLANTILLAS - Agregar o Editar
+    const basePlantillas = {
+        "password": {
+            pasos: "1. Validación de identidad.\n2. Desbloqueo en Active Directory.\n3. Generación de clave temporal.",
+            solucion: "Se restauró el acceso y se confirmó ingreso exitoso."
+        },
+        "vpn": {
+            pasos: "1. Verificación de internet.\n2. Reinstalación de cliente AnyConnect.\n3. Actualización de perfiles.",
+            solucion: "VPN operativa tras reinicio de servicios de red local."
+        },
+        "impresora": {
+            pasos: "1. Revisión física de hardware.\n2. Limpieza de rodillos y cola de impresión.\n3. Prueba de impresión local.",
+            solucion: "Impresora funcional. Se retiró atasco de papel en bandeja 2."
+        },
+        "software": {
+            pasos: "1. Verificación de requerimientos.\n2. Ejecución de instalador con permisos de Admin.\n3. Activación de licencia.",
+            solucion: "Software instalado y configurado según políticas de la empresa."
+        }
+    };
+
+    function actualizarPlantilla() {
+        const select = document.getElementById('incidenteSelect').value;
+        const user = document.getElementById('ticketUser').value || "N/A";
+        const output = document.getElementById('plantillaOutput');
+
+        if (select && basePlantillas[select]) {
+            const data = basePlantillas[select];
+            output.value = `*** REPORTE DE SOPORTE ***\n` +
+                           `USUARIO: ${user}\n` +
+                           `TIPO: ${select.toUpperCase()}\n` +
+                           `---------------------------\n` +
+                           `PASOS REALIZADOS:\n${data.pasos}\n\n` +
+                           `SOLUCIÓN:\n${data.solucion}\n` +
+                           `---------------------------`;
+        } else {
+            output.value = "";
+        }
+    }
+
+    function copiarAlPortapapeles() {
+        const copyText = document.getElementById("plantillaOutput");
+        if (copyText.value === "") return;
+
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // Para móviles
+        navigator.clipboard.writeText(copyText.value);
+
+        const msg = document.getElementById("mensajeCopiado");
+        msg.style.display = "block";
+        setTimeout(() => { msg.style.display = "none"; }, 2000);
+    }
+</script>
+
+</body>
+</html>
